@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import Button from 'react-bootstrap/Button';
 
 function App() {
 
@@ -17,8 +16,6 @@ function App() {
   }, [])
 
   return (
-    <>
-          <Button variant="info">Info</Button>{' '}
 
     <div className="App">
       
@@ -30,7 +27,7 @@ function App() {
         ))
       )}
     </div>
-    </>
+
   );
 }
 
