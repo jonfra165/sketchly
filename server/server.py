@@ -4,12 +4,40 @@ import os
 import base64
 import cv2
 import numpy as np
+import logging
+import sys
 
 
 from flask_cors import CORS
 
 app = Flask(__name__)
 CORS(app)
+
+UPLOAD_FOLDER = 'uploads'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+@app.route('/api/upload_image', methods=['POST'])
+def upload_file():
+    # Get the uploaded file from the request
+    file = request.files['file']
+    print(file)
+    
+    # Save the uploaded file to the upload directory
+    filename = secure_filename(file.filename)
+    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    file.save(file_path)
+    
+    # Get the expected file path
+    expected_file_path = os.path.join(os.getcwd(), file_path)
+    
+    # Return a response
+    return jsonify({'message': 'File uploaded successfully', 'file_path': expected_file_path})
+
+# function to check if the file has an allowed extension
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/show-image')
 def show_image():
@@ -24,33 +52,9 @@ def show_image():
 
     return {'image': img_str }
 
-
-@app.route('/api/upload_image', methods=['POST'])
-def upload_file():
-    # Get the uploaded file from the request
-    file = request.files['file']
-    
-    # Get the current working directory
-    current_dir = os.getcwd()
-    
-    # Define the upload directory
-    upload_dir = os.path.join(current_dir, 'uploads')
-    
-    # Create the upload directory if it doesn't exist
-    if not os.path.exists(upload_dir):
-        os.makedirs(upload_dir)
-    
-    # Save the uploaded file to the upload directory
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(upload_dir, filename)
-    file.save(file_path)
-    
-    # Get the expected file path
-    expected_file_path = os.path.join(current_dir, file_path)
-    
-    # Return a response
-    return jsonify({'message': 'File uploaded successfully', 'file_path': expected_file_path})
-
+@app.route('/test', methods=['GET'])
+def test():
+    return "CORS WORKS!"
 
 @app.post('/convert-to-sketch')
 def convert_to_sketch():
@@ -59,4 +63,6 @@ def convert_to_sketch():
 
 
 if __name__ == "__main__":
+    app.logger.addHandler(logging.StreamHandler(sys.stdout))
+    app.logger.setLevel(logging.ERROR)
     app.run(debug=True)

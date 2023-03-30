@@ -19,10 +19,8 @@ function ShowImage() {
   return (
     <>
       {image ? <img src={`data:image/png;base64,${image}`} alt="test" /> : null}
-     
-
+      
     </>
-    
 
   );
 }
