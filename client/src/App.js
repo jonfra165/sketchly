@@ -1,14 +1,14 @@
 import React from 'react';
-import ShowImage from './components/ShowImage';
 import Navbar from './components/Navbar';
-import UploadButton from './components/UploadButton';
+import ShowImage from './components/ShowImage';
+import SketchImage from './components/SketchImage';
 
 function App() {
   return (
     <div>
-        <Navbar />
-        <ShowImage />
-        <UploadButton />
+      <Navbar />
+      <ShowImage />
+      <SketchImage />
     </div>
   );
 }

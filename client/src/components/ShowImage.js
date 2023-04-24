@@ -1,28 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
 
-function ShowImage() {
-    
-  const [image, setImage] = useState(null);
+const ShowImage = () => {
+  const [imageData, setImageData] = useState('');
 
-  useEffect(() => {
-    fetch('/show-image')
-      .then(response => response.json())
-      .then(data => {
-        console.log(data.image); // Log the base64-encoded image data
-        setImage(data.image);
-      })
-      .catch(error => console.error(error));
-  }, []);
+  const handleImageUpload = async (event) => {
+    const file = event.target.files[0];
+    const formData = new FormData();
+    formData.append('file', file);
 
-
+    try {
+      const response = await axios.post('/api/upload', formData);
+      setImageData(response.data.image);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
-    <>
-      {image ? <img src={`data:image/png;base64,${image}`} alt="test" /> : null}
-      
-    </>
-
+    <div>
+      <h2>Show Image</h2>
+      <input type="file" onChange={handleImageUpload} />
+      {imageData && <img src={`data:image/jpeg;base64,${imageData}`} alt="Uploaded" />}
+    </div>
   );
-}
+};
 
 export default ShowImage;

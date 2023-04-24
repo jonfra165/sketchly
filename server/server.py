@@ -1,68 +1,57 @@
 from flask import Flask, request, jsonify
-from werkzeug.utils import secure_filename
-import os
-import base64
 import cv2
 import numpy as np
-import logging
-import sys
-
-
-from flask_cors import CORS
+import base64
 
 app = Flask(__name__)
-CORS(app)
 
-UPLOAD_FOLDER = 'uploads'
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-@app.route('/api/upload_image', methods=['POST'])
-def upload_file():
+@app.route('/api/upload', methods=['POST'])
+def upload():
     # Get the uploaded file from the request
     file = request.files['file']
-    print(file)
-    
-    # Save the uploaded file to the upload directory
-    filename = secure_filename(file.filename)
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-    file.save(file_path)
-    
-    # Get the expected file path
-    expected_file_path = os.path.join(os.getcwd(), file_path)
-    
-    # Return a response
-    return jsonify({'message': 'File uploaded successfully', 'file_path': expected_file_path})
 
-# function to check if the file has an allowed extension
-def allowed_file(filename):
-    ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+    # Convert the image to a numpy array
+    img = np.frombuffer(file.read(), np.uint8)
 
-@app.route('/show-image')
-def show_image():
-    img = cv2.imread('server/images/scoccish.png')
-    gray_img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    _, thresh_img = cv2.threshold(gray_img, 127, 255, cv2.THRESH_BINARY)
-    new_img = cv2.resize(thresh_img, (500, 700))
+    # Read the image using OpenCV
+    img = cv2.imdecode(img, cv2.IMREAD_COLOR)
 
-    # Encode the image data as a base64 string
-    retval, buffer = cv2.imencode('.png', new_img)
-    img_str = base64.b64encode(buffer).decode()
+    # Convert the image to base64 string
+    _, buffer = cv2.imencode('.jpg', img)
+    img_base64 = base64.b64encode(buffer).decode('utf-8')
 
-    return {'image': img_str }
+    # Return the base64-encoded image
+    return jsonify({'image': img_base64})
 
-@app.route('/test', methods=['GET'])
-def test():
-    return "CORS WORKS!"
+@app.route('/api/sketch', methods=['POST'])
+def sketch():
+    # Get the uploaded file from the request
+    file = request.files['image']
 
-@app.post('/convert-to-sketch')
-def convert_to_sketch():
-    '''This endpoint will take the uploaded image and convert it into a sketch using OpenCV.'''
-    return     
+    # Convert the image to a numpy array
+    img = np.frombuffer(file.read(), np.uint8)
 
+    # Read the image using OpenCV
+    img = cv2.imdecode(img, cv2.IMREAD_COLOR)
 
-if __name__ == "__main__":
-    app.logger.addHandler(logging.StreamHandler(sys.stdout))
-    app.logger.setLevel(logging.ERROR)
-    app.run(debug=True)
+    # Convert the image to grayscale
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+    # Invert the image
+    inverted_gray = 255 - gray
+
+    # Apply Gaussian blur
+    blurred = cv2.GaussianBlur(inverted_gray, (21, 21), 0)
+
+    # Blend the grayscale image with the blurred image using color dodge blend mode
+    blend = cv2.divide(gray, 255 - blurred, scale=256)
+
+    # Convert the blended image to base64 string
+    _, buffer = cv2.imencode('.jpg', blend)
+    blend_base64 = base64.b64encode(buffer).decode('utf-8')
+
+    # Return the base64-encoded blended image
+    return jsonify({'sketch': blend_base64})
+
+if __name__ == '__main__':
+    app.run(debug=True) 
