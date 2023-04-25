@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import Card from '@mui/material/Card';
+import CardMedia from '@mui/material/CardMedia';
+
 
 const ShowImage = () => {
   const [imageData, setImageData] = useState('');
@@ -28,21 +31,44 @@ const ShowImage = () => {
       setSketchData(response.data.sketch);
     } catch (error) {
       console.log(error);
-      console.log('erroooroororo');
-      console.log(imageData);
     }
   };
 
   return (
-    <div>
-      <h2>Show Image</h2>
-      <input type="file" onChange={handleImageUpload} />
-      {imageData && <img src={`data:image/jpeg;base64,${imageData}`} alt="Uploaded" />}
-      <button onClick={convertToSketch}>Convert to Sketch</button>
-      {sketchData && <img src={`data:image/jpeg;base64,${sketchData}`} alt="Sketch" />}
+    <div> 
+    <Card sx={{
+  maxWidth: 1/2,
+  margin: "0 auto",
+  padding: "0.1em",
+  display: 'flex',
+  flexDirection: 'column'
+}}>
+  {imageData && <CardMedia
+    sx={{ height: 300, objectFit: 'contain' }}
+    component="img"
+    image={`data:image/jpeg;base64,${imageData}`}
+    title="Uploaded"
+  />}
+  <input type="file" onChange={handleImageUpload} />
+</Card>
 
-      
+      <Card sx={{ maxWidth: 1/2,
+  margin: "0 auto",
+  padding: "0.1em",
+  display: 'flex',
+  flexDirection: 'column'}}>          
+      {sketchData && <CardMedia
+          sx={{ height: 300, objectFit: 'contain' }}
+          component="img"
+          image={`data:image/jpeg;base64,${sketchData}`}
+          title="Sketch"
+        />}
+
+      </Card>
+      <button onClick={convertToSketch}>Convert to Sketch</button>
     </div>
+    
+
   );
 };
 
