@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Card from '@mui/material/Card';
 import CardMedia from '@mui/material/CardMedia';
@@ -20,11 +20,17 @@ const ShowImage = () => {
       console.log(error);
     }
   };
+  useEffect(() => {
+    if (imageData) {
+      convertToSketch();
+    }
+  }, [imageData]);
+
   const convertToSketch = async () => {
     const blob = await fetch(`data:image/jpeg;base64,${imageData}`).then(res => res.blob());
     const formData = new FormData();
     formData.append('image', blob);
-  
+
     try {
       const response = await axios.post('/api/sketch', formData);
       console.log(response);
@@ -34,40 +40,43 @@ const ShowImage = () => {
     }
   };
 
-  return (
-    <div> 
-    <Card sx={{
-  maxWidth: 1/2,
-  margin: "0 auto",
-  padding: "0.1em",
-  display: 'flex',
-  flexDirection: 'column'
-}}>
-  {imageData && <CardMedia
-    sx={{ height: 300, objectFit: 'contain' }}
-    component="img"
-    image={`data:image/jpeg;base64,${imageData}`}
-    title="Uploaded"
-  />}
-  <input type="file" onChange={handleImageUpload} />
-</Card>
 
-      <Card sx={{ maxWidth: 1/2,
-  margin: "0 auto",
-  padding: "0.1em",
-  display: 'flex',
-  flexDirection: 'column'}}>          
-      {sketchData && <CardMedia
-          sx={{ height: 300, objectFit: 'contain' }}
+  return (
+    <div>
+      <Card sx={{
+        maxWidth: 400,
+        maxHeight: 1 / 2,
+        margin: "0 auto",
+        padding: "0.1em",
+        display: 'flex',
+        flexDirection: 'column',
+      }}>
+        {imageData && <CardMedia
+          sx={{ height: 1, objectFit: 1 }}
+          component="img"
+          image={`data:image/jpeg;base64,${imageData}`}
+          title="Uploaded"
+        />}
+        <input type="file" onChange={handleImageUpload} />
+      </Card>
+
+      <Card sx={{
+        maxWidth: 400, maxHeight: 1 / 2,
+
+        margin: "0 auto",
+        padding: "0.1em",
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        {sketchData && <CardMedia
+          sx={{ height: 1, objectFit: 1 }}
           component="img"
           image={`data:image/jpeg;base64,${sketchData}`}
           title="Sketch"
         />}
 
       </Card>
-      <button onClick={convertToSketch}>Convert to Sketch</button>
     </div>
-    
 
   );
 };
