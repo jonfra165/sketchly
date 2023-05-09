@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Card from '@mui/material/Card';
-import CardMedia from '@mui/material/CardMedia';
+import Col from 'react-bootstrap/Col';
+import Card from 'react-bootstrap/Card';
 
 
 const ShowImage = () => {
@@ -40,44 +40,34 @@ const ShowImage = () => {
     }
   };
 
-
   return (
-    <div>
-      <Card sx={{
-        maxWidth: 400,
-        maxHeight: 1 / 2,
-        margin: "0 auto",
-        padding: "0.1em",
-        display: 'flex',
-        flexDirection: 'column',
-      }}>
-        {imageData && <CardMedia
-          sx={{ height: 1, objectFit: 1 }}
-          component="img"
-          image={`data:image/jpeg;base64,${imageData}`}
-          title="Uploaded"
-        />}
-        <input type="file" onChange={handleImageUpload} />
-      </Card>
-
-      <Card sx={{
-        maxWidth: 400, maxHeight: 1 / 2,
-
-        margin: "0 auto",
-        padding: "0.1em",
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
-        {sketchData && <CardMedia
-          sx={{ height: 1, objectFit: 1 }}
-          component="img"
-          image={`data:image/jpeg;base64,${sketchData}`}
-          title="Sketch"
-        />}
-
-      </Card>
-    </div>
-
+    <>
+      <Col d-flex>
+        <Card style={{ width: '18rem' }}>
+          {imageData && (
+          <Card.Img variant="top" src={`data:image/jpeg;base64,${imageData}`} />)}
+          <Card.Body>
+            <Card.Title>Originalbild</Card.Title>
+            <Card.Text>
+              Här visas originalbilden för att kunna jämföra den med skissen.
+            </Card.Text>
+          </Card.Body>
+        </Card>
+      </Col>
+      <Col>
+        <Card style={{ width: '18rem' }}>
+          {sketchData && (
+          <Card.Img variant="top" src={`data:image/jpeg;base64,${sketchData}`} />)}
+          <Card.Body>
+            <Card.Title>Skiss</Card.Title>
+            <Card.Text>
+              Här visas bilden som en skiss med hjälp av funktionalitet från OpenCV.
+            </Card.Text>
+          </Card.Body>
+        </Card>
+      </Col>
+      <input type="file" className="mt-5" onChange={handleImageUpload} />
+    </>
   );
 };
 
